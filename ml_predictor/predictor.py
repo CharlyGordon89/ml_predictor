@@ -3,6 +3,7 @@ from ml_config import load_config
 from ml_validator import validate_schema 
 import joblib
 import pandas as pd
+import numpy as np
 from typing import Union
 
 def load_model(model_path: str):
@@ -17,11 +18,12 @@ def load_model(model_path: str):
     """
     try:
         model = joblib.load(model_path)
+        validate_model(model)
         return model
     except Exception as e:
         raise RuntimeError(f"Error loading model: {e}")
 
-def predict(model, data: Union[pd.DataFrame, dict]):
+def predict(model, data: Union[pd.DataFrame, dict]) -> np.ndarray:
     """
     Make predictions using the given model and data.
     
