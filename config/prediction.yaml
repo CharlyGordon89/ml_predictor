@@ -1,0 +1,4 @@
+input_schema:
+  age: int64
+  income: float64
+model_path: "artifacts/models/model.joblib" 
