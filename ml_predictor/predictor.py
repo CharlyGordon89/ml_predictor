@@ -23,6 +23,7 @@ def load_model(model_path: str):
     except Exception as e:
         raise RuntimeError(f"Error loading model: {e}")
 
+
 def predict(model, data: Union[pd.DataFrame, dict]) -> np.ndarray:
     """
     Make predictions using the given model and data.
@@ -30,19 +31,23 @@ def predict(model, data: Union[pd.DataFrame, dict]) -> np.ndarray:
     Args:
         model: A trained ML model.
         data (pd.DataFrame or dict): Input data for prediction.
+            For dicts: values should be scalars or arrays, not nested lists
     
     Returns:
-        np.ndarray or list: Predictions.
+        np.ndarray: Predictions.
     """
     if isinstance(data, dict):
-        data = pd.DataFrame([data])  # Convert single sample dict to DataFrame
-
-    try:
-        predictions = model.predict(data)
-        return predictions
-    except Exception as e:
-        raise RuntimeError(f"Error making prediction: {e}")
+        # Convert dict to DataFrame, ensuring no nested sequences
+        data = pd.DataFrame({k: [v] if not isinstance(v, (list, np.ndarray)) else v 
+                     for k, v in data.items()})
     
+    try:
+        return model.predict(data)
+    except Exception as e:
+        raise RuntimeError(
+            f"Prediction failed. Ensure input data matches model requirements.\n"
+            f"Original error: {str(e)}"
+        )
 
 
 def predict_with_validation(
@@ -104,3 +109,5 @@ def validate_model(model):
             "Model must implement predict() or predict_proba()\n"
             f"Actual methods: {dir(model)}"
         )
+
+
